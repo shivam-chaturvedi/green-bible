@@ -8,7 +8,7 @@
 
     <item
         android:id="@+id/nav_ai"
-        android:icon="@drawable/ic_leaf"
+        android:icon="@drawable/logo"
         android:title="Plant AI" />
 
     <item

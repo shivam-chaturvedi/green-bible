@@ -1,43 +1,40 @@
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="0dp"
-    android:layout_height="wrap_content"
-    android:layout_columnWeight="1"
+    android:layout_height="180dp"
     android:layout_margin="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="4dp"
-    android:backgroundTint="#FFFFFF">
+    android:layout_columnWeight="1"
+    app:cardCornerRadius="18dp"
+    app:cardElevation="8dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackgroundBorderless"
+    android:backgroundTint="@android:color/white">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="16dp"
-        android:gravity="center_horizontal">
+        android:gravity="center"
+        android:padding="16dp">
 
         <ImageView
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:id="@+id/action_icon"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
             android:src="@drawable/ic_leaf"
-            android:contentDescription="icon" />
+            android:tint="@color/green_primary"
+            android:contentDescription="@string/app_name" />
 
         <TextView
+            android:id="@+id/action_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Plant AI"
-            android:textColor="#2E7D32"
+            android:text="Action"
+            android:textColor="@color/text_dark"
             android:textStyle="bold"
             android:textSize="16sp"
-            android:layout_marginTop="8dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Identify plants and get care tips"
-            android:textColor="#555"
-            android:textSize="13sp"
-            android:gravity="center"
-            android:layout_marginTop="4dp" />
+            android:layout_marginTop="10dp" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
