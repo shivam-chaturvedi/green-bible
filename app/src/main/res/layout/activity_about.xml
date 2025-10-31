@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:background="@color/green_light">
+
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp"
+        android:layout_weight="1" android:padding="16dp">
+        <LinearLayout android:orientation="vertical" android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- Header card -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:background="@drawable/bg_card" android:orientation="vertical">
+                <ImageView android:layout_width="56dp" android:layout_height="56dp"
+                    android:src="@drawable/ic_leaf" app:tint="@color/green_primary"
+                    android:layout_gravity="center"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Garden App"
+                    android:textStyle="bold"
+                    android:textColor="@color/green_primary"
+                    android:textSize="24sp"
+                    android:layout_gravity="center"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cultivating Digital Gardens"
+                    android:textColor="@color/text_gray"
+                    android:layout_gravity="center"/>
+            </LinearLayout>
+
+            <!-- Mission -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:background="@drawable/bg_card" android:layout_marginTop="12dp"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Our Mission"
+                    android:textStyle="bold"
+                    android:textColor="@color/green_primary"
+                    android:textSize="18sp"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Our mission is to empower gardeners by providing innovative tools and knowledge, enabling them to create and nurture thriving gardens. By promoting a love for gardening and fostering sustainable practices, we aim to help communities cultivate their own beautiful, eco-friendly oasis."
+                    android:textColor="@color/text_dark"
+                    android:layout_marginTop="6dp"/>
+            </LinearLayout>
+
+            <!-- About Developer -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:background="@drawable/bg_card" android:layout_marginTop="12dp"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="About the Developer"
+                    android:textStyle="bold"
+                    android:textColor="@color/green_primary"
+                    android:textSize="18sp"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="I am a passionate individual who loves gardening, technology, and nature. ..."
+                    android:textColor="@color/text_dark"
+                    android:layout_marginTop="6dp"/>
+            </LinearLayout>
+
+            <!-- Core features -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:background="@drawable/bg_card" android:layout_marginTop="12dp"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Core Features"
+                    android:textStyle="bold"
+                    android:textColor="@color/green_primary"
+                    android:textSize="18sp"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="⭐ Smart Planting Calendar"
+                    android:textColor="@color/text_dark"
+                    android:layout_marginTop="6dp"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="🌿 AI Plant Identification"
+                    android:textColor="@color/text_dark"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="🩺 Disease Diagnosis"
+                    android:textColor="@color/text_dark"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="♻️ Sustainability Guides"
+                    android:textColor="@color/text_dark"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="📍 Location-Based Tips"
+                    android:textColor="@color/text_dark"/>
+            </LinearLayout>
+
+            <!-- FAQ -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Frequently Asked Questions"
+                android:textStyle="bold"
+                android:textColor="@color/green_primary"
+                android:textSize="20sp"
+                android:layout_marginTop="12dp"/>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:background="@drawable/bg_card" android:layout_marginTop="8dp"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="How do I contact support?"
+                    android:textStyle="bold"
+                    android:textColor="@color/green_primary"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="You can email me directly at agasthya.shukla@gmail.com"
+                    android:textColor="@color/text_dark"
+                    android:layout_marginTop="4dp"/>
+            </LinearLayout>
+
+            <!-- Get in Touch -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:background="@drawable/bg_card" android:layout_marginTop="12dp"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Get in Touch"
+                    android:textStyle="bold"
+                    android:textColor="@color/green_primary"
+                    android:textSize="18sp"/>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:layout_marginTop="12dp">
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:background="@drawable/bg_button_green"
+                        android:gravity="center" android:padding="12dp">
+                        <ImageView android:layout_width="18dp" android:layout_height="18dp"
+                            android:src="@drawable/ic_mail" app:tint="@color/white"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="  Email Support"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"/>
+                    </LinearLayout>
+                    <Space android:layout_width="12dp" android:layout_height="1dp"/>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:background="@drawable/bg_button_green"
+                        android:gravity="center" android:padding="12dp">
+                        <ImageView android:layout_width="18dp" android:layout_height="18dp"
+                            android:src="@drawable/ic_globe" app:tint="@color/white"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="  Visit Website"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Made with ❤️ for gardeners everywhere"
+                android:textColor="@color/text_gray"
+                android:gravity="center"
+                android:layout_marginTop="16dp"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Version 1.0.0"
+                android:textColor="@color/text_gray"
+                android:gravity="center"/>
+        </LinearLayout>
+    </ScrollView>
+
+    <include layout="@layout/bottom_nav"/>
+</LinearLayout>

@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:background="@color/green_light">
+
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp"
+        android:layout_weight="1" android:padding="16dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Sustainability Strategies"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                android:textColor="@color/green_primary"/>
+
+            <!-- Weather-based recs card -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:background="@drawable/bg_card" android:orientation="vertical"
+                android:layout_marginTop="12dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <ImageView android:layout_width="22dp" android:layout_height="22dp"
+                        android:src="@drawable/ic_sustain" app:tint="@color/green_primary"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="Weather-Based Recommendations"
+                        android:textStyle="bold"
+                        android:textColor="@color/green_primary"
+                        android:textSize="18sp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="  Demo Mode"
+                        android:layout_marginStart="8dp"
+                        android:textColor="#E68A00"
+                        android:background="#FFF0DB"
+                        android:padding="6dp"
+                        android:layout_marginLeft="8dp"/>
+                </LinearLayout>
+
+                <LinearLayout android:orientation="vertical" android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:layout_marginTop="12dp">
+                    <LinearLayout android:orientation="horizontal"
+                        android:layout_width="match_parent" android:layout_height="wrap_content">
+                        <TextView android:text="Temperature:" android:textColor="@color/text_dark"
+                            android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="22°C"
+                            android:textColor="@color/green_primary"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:orientation="horizontal"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp">
+                        <TextView android:text="Humidity:" android:layout_width="0dp"
+                            android:layout_weight="1" android:layout_height="wrap_content"
+                            android:textColor="@color/text_dark"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="65%"
+                            android:textColor="@color/green_primary"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:orientation="horizontal"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp">
+                        <TextView android:text="Precipitation:" android:layout_width="0dp"
+                            android:layout_weight="1" android:layout_height="wrap_content"
+                            android:textColor="@color/text_dark"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="30%"
+                            android:textColor="@color/green_primary"/>
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Light rain expected in the next 24 hours"
+                        android:textColor="@color/text_gray"
+                        android:textStyle="italic"
+                        android:layout_marginTop="8dp"/>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp"
+                        android:background="#E0E0E0" android:layout_marginTop="12dp"/>
+
+                    <LinearLayout android:orientation="horizontal"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp">
+                        <TextView android:text="Irrigation Status:" android:layout_width="0dp"
+                            android:layout_weight="1" android:layout_height="wrap_content"
+                            android:textColor="@color/text_dark"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Active"
+                            android:textColor="@color/green_primary"/>
+                        <Switch android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:checked="true" android:layout_marginStart="8dp"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Smart notifications card -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:background="@drawable/bg_card" android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="Smart Notifications"
+                    android:textStyle="bold"
+                    android:textColor="@color/green_primary"
+                    android:textSize="18sp"
+                    android:layout_weight="1"/>
+                <Switch android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:checked="true"/>
+            </LinearLayout>
+
+            <!-- Chips row -->
+            <HorizontalScrollView android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:layout_marginTop="12dp">
+                <LinearLayout android:orientation="horizontal" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_chip"
+                        android:layout_marginRight="8dp">
+                        <ImageView android:layout_width="18dp" android:layout_height="18dp"
+                        android:src="@drawable/ic_grid" app:tint="@color/green_primary"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="  All  "
+                            android:textColor="@color/green_primary"
+                            android:layout_marginLeft="4dp"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_chip"
+                        android:layout_marginRight="8dp">
+                        <ImageView android:layout_width="18dp" android:layout_height="18dp"
+                        android:src="@drawable/ic_leaf" app:tint="@color/green_primary"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="  Composting  "
+                            android:textColor="@color/green_primary"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_chip">
+                        <ImageView android:layout_width="18dp" android:layout_height="18dp"
+                        android:src="@drawable/ic_bug" app:tint="@color/green_primary"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="  Organic Control  "
+                            android:textColor="@color/green_primary"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </HorizontalScrollView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Educational Guides"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/green_primary"
+                android:layout_marginTop="16dp"/>
+
+            <!-- example guide card -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:background="@drawable/bg_card" android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+                <ImageView android:layout_width="28dp" android:layout_height="28dp"
+                    android:src="@drawable/ic_leaf" app:tint="#7F5B43"/>
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:orientation="vertical"
+                    android:layout_marginStart="12dp">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Composting Basics"
+                        android:textStyle="bold"
+                        android:textColor="@color/green_primary"
+                        android:textSize="16sp"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Start with kitchen scraps, yard waste, and paper. Layer brown (carbon) and green (nitrogen) materials. Turn weekly and keep moist."
+                        android:textColor="@color/text_dark"
+                        android:layout_marginTop="4dp"/>
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <include layout="@layout/bottom_nav"/>
+</LinearLayout>

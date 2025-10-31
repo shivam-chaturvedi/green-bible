@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_home"
+        android:icon="@drawable/ic_home"
+        android:title="Home" />
+
+    <item
+        android:id="@+id/nav_ai"
+        android:icon="@drawable/ic_leaf"
+        android:title="Plant AI" />
+
+    <item
+        android:id="@+id/nav_health"
+        android:icon="@drawable/ic_health"
+        android:title="Plant Health" />
+
+    <item
+        android:id="@+id/nav_sustain"
+        android:icon="@drawable/ic_sustain"
+        android:title="Sustainability" />
+
+    <item
+        android:id="@+id/nav_calendar"
+        android:icon="@drawable/ic_calendar"
+        android:title="Calendar" />
+
+    <item
+        android:id="@+id/nav_about"
+        android:icon="@drawable/ic_info"
+        android:title="About" />
+</menu>
