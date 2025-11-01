@@ -126,24 +126,57 @@ public class PlantHealthActivity extends AppCompatActivity {
             return;
         }
         showLoading(true);
-        RequestBody requestFile = RequestBody.create(selectedImageFile, MediaType.parse("image/jpeg"));
-        MultipartBody.Part body = MultipartBody.Part.createFormData("file", selectedImageFile.getName(), requestFile);
+        
+        // Create request body with proper MediaType
+        MediaType mediaType = MediaType.parse("image/jpeg");
+        RequestBody requestFile = RequestBody.create(selectedImageFile, mediaType);
+        // Use a standard filename to ensure API compatibility
+        String filename = selectedImageFile.getName();
+        if (filename == null || !filename.toLowerCase().endsWith(".jpg") && !filename.toLowerCase().endsWith(".jpeg")) {
+            filename = "image.jpg";
+        }
+        MultipartBody.Part body = MultipartBody.Part.createFormData("file", filename, requestFile);
 
         leafApi.uploadLeaf(body).enqueue(new Callback<PredictionResponse>() {
             @Override
             public void onResponse(Call<PredictionResponse> call, Response<PredictionResponse> response) {
                 showLoading(false);
                 if (response.isSuccessful() && response.body() != null) {
-                    navigateToResult(response.body());
+                    PredictionResponse prediction = response.body();
+                    if (prediction.getPredictedLabel() != null) {
+                        navigateToResult(prediction);
+                    } else {
+                        android.util.Log.e("PlantHealth", "Response body missing predicted_label");
+                        Toast.makeText(PlantHealthActivity.this, "Invalid response from server.", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
-                    Toast.makeText(PlantHealthActivity.this, "Couldn't analyze image right now.", Toast.LENGTH_SHORT).show();
+                    String errorMsg = "Couldn't analyze image right now.";
+                    try {
+                        if (response.errorBody() != null) {
+                            String errorBody = response.errorBody().string();
+                            android.util.Log.e("PlantHealth", "API Error: " + response.code() + " - " + errorBody);
+                            errorMsg = "Server error: " + response.code();
+                        } else {
+                            android.util.Log.e("PlantHealth", "API Error: " + response.code() + " - No error body");
+                        }
+                    } catch (Exception e) {
+                        android.util.Log.e("PlantHealth", "Error reading error body", e);
+                    }
+                    Toast.makeText(PlantHealthActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<PredictionResponse> call, Throwable t) {
                 showLoading(false);
-                Toast.makeText(PlantHealthActivity.this, "Analysis failed. Check your connection.", Toast.LENGTH_SHORT).show();
+                android.util.Log.e("PlantHealth", "Network failure", t);
+                String errorMsg = "Analysis failed. ";
+                if (t.getMessage() != null) {
+                    errorMsg += t.getMessage();
+                } else {
+                    errorMsg += "Check your connection.";
+                }
+                Toast.makeText(PlantHealthActivity.this, errorMsg, Toast.LENGTH_LONG).show();
             }
         });
     }

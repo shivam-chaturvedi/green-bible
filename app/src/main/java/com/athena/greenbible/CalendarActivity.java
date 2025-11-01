@@ -103,7 +103,16 @@ public class CalendarActivity extends AppCompatActivity {
 
         // tasks list
         adapter = new TaskAdapter();
-        tasksRecycler.setLayoutManager(new LinearLayoutManager(this));
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this) {
+            @Override
+            public boolean canScrollVertically() {
+                return false; // Disable internal scrolling - let parent NestedScrollView handle it
+            }
+        };
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        tasksRecycler.setLayoutManager(layoutManager);
+        tasksRecycler.setHasFixedSize(false);
+        tasksRecycler.setNestedScrollingEnabled(false);
         tasksRecycler.setAdapter(adapter);
 
         fab.setOnClickListener(v -> showAddTaskDialog());
@@ -205,6 +214,18 @@ public class CalendarActivity extends AppCompatActivity {
             tasksTitle.setText("Tasks for " + niceFmt.format(selectedDate));
             Collections.sort(finalList, (a, b) -> a.getDueDateTime().compareTo(b.getDueDateTime()));
         });
+        
+        // Ensure RecyclerView expands properly after updating items
+        if (tasksRecycler != null && adapter != null) {
+            tasksRecycler.post(() -> {
+                int itemCount = adapter.getItemCount();
+                if (itemCount > 0) {
+                    // Force RecyclerView to measure its content
+                    tasksRecycler.getLayoutParams().height = android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+                    tasksRecycler.requestLayout();
+                }
+            });
+        }
     }
 
     private void loadTasksFromStorage() {
@@ -394,6 +415,17 @@ public class CalendarActivity extends AppCompatActivity {
             items = list;
             this.onChanged = onChanged;
             notifyDataSetChanged();
+            // Ensure RecyclerView properly expands to show all items
+            if (tasksRecycler != null) {
+                tasksRecycler.post(() -> {
+                    // Force layout pass to measure all items
+                    tasksRecycler.setLayoutParams(new android.widget.LinearLayout.LayoutParams(
+                        android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                        android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+                    ));
+                    tasksRecycler.requestLayout();
+                });
+            }
         }
 
         @NonNull @Override public TaskVH onCreateViewHolder(@NonNull android.view.ViewGroup parent, int viewType) {

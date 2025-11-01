@@ -112,7 +112,9 @@
                             android:text="  Choose Image"
                             android:textColor="@color/green_primary"
                             android:textStyle="bold"
-                            android:textSize="15sp" />
+                            android:textSize="12sp"
+                            android:maxLines="1"
+                            android:ellipsize="end" />
                     </LinearLayout>
                 </LinearLayout>
 

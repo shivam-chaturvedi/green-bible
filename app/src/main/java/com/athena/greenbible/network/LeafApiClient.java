@@ -7,7 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class LeafApiClient {
 
-    private static final String BASE_URL = "https://leaf-disease-api-v3fr.onrender.com";
+    private static final String BASE_URL = "https://leaf-disease-api-v3fr.onrender.com/";
 
     private static LeafApi api;
 
@@ -16,10 +16,13 @@ public class LeafApiClient {
             synchronized (LeafApiClient.class) {
                 if (api == null) {
                     HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
-                    loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BASIC);
+                    loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
                     OkHttpClient client = new OkHttpClient.Builder()
                             .addInterceptor(loggingInterceptor)
+                            .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+                            .readTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+                            .writeTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
                             .build();
 
                     Retrofit retrofit = new Retrofit.Builder()

@@ -553,27 +553,30 @@
                         android:orientation="horizontal">
 
                         <TextView
+                            android:id="@+id/home_weather_temp"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="22°C"
+                            android:text="Loading..."
                             android:textColor="@color/green_primary"
                             android:textSize="28sp"
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/home_weather_summary"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Partly Cloudy"
+                            android:text="--"
                             android:textColor="@color/text_gray"
                             android:textSize="14sp" />
                     </LinearLayout>
 
                     <TextView
+                        android:id="@+id/home_weather_details"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="🌧️ Rain 30%   💧 Humidity 65%   🌬️ Wind 8 km/h"
+                        android:text="🌧️ Precip: --   💧 Humidity: --"
                         android:textColor="@color/text_gray"
                         android:textSize="13sp" />
 
@@ -584,9 +587,10 @@
                         android:background="@color/green_light" />
 
                     <TextView
+                        android:id="@+id/home_weather_tip"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Tip: Pause irrigation today — light showers are expected overnight to top up moisture."
+                        android:text="Loading weather data..."
                         android:textColor="@color/text_dark"
                         android:textSize="13sp" />
                 </LinearLayout>
