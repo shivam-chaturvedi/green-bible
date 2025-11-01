@@ -1,0 +1,23 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_chip"
+    android:layout_marginRight="8dp"
+    android:gravity="center_vertical"
+    android:padding="6dp">
+
+    <ImageView
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:src="@drawable/ic_bug"
+        android:tint="@color/green_primary" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="  Organic Control"
+        android:textColor="@color/green_primary"
+        android:textStyle="bold"
+        android:textSize="14sp" />
+</LinearLayout>

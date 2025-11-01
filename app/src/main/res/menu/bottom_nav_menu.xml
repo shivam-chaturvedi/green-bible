@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/nav_home"
@@ -8,8 +9,9 @@
 
     <item
         android:id="@+id/nav_ai"
-        android:icon="@drawable/logo"
-        android:title="Plant AI" />
+        android:icon="@drawable/ic_leaf"
+        android:title="Plant AI"
+        app:iconTint="@null" />
 
     <item
         android:id="@+id/nav_health"

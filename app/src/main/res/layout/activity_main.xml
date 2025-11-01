@@ -112,18 +112,6 @@
                                 android:textSize="12sp"
                                 android:textStyle="bold" />
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:background="@drawable/bg_chip"
-                                android:paddingStart="16dp"
-                                android:paddingTop="8dp"
-                                android:paddingEnd="16dp"
-                                android:paddingBottom="8dp"
-                                android:text="Soil moisture 48%"
-                                android:textColor="@color/green_primary"
-                                android:textSize="12sp"
-                                android:textStyle="bold" />
                         </LinearLayout>
                     </LinearLayout>
 
@@ -267,6 +255,7 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:minHeight="160dp"
                             android:orientation="vertical"
                             android:padding="18dp">
 
@@ -314,6 +303,7 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:minHeight="160dp"
                             android:orientation="vertical"
                             android:padding="18dp">
 
@@ -340,7 +330,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="6dp"
                                 android:gravity="center"
-                                android:text="Upload photos and symptom notes for targeted recovery plans."
+                                android:text="Log quick symptoms for an instant recovery plan."
                                 android:textColor="@color/text_gray"
                                 android:textSize="13sp" />
                         </LinearLayout>
@@ -367,6 +357,7 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:minHeight="160dp"
                             android:orientation="vertical"
                             android:padding="18dp">
 
@@ -414,6 +405,7 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:minHeight="160dp"
                             android:orientation="vertical"
                             android:padding="18dp">
 
@@ -440,7 +432,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="6dp"
                                 android:gravity="center"
-                                android:text="Adopt sustainable routines for composting, irrigation, and pest control."
+                                android:text="Pick quick eco routines for compost, water, and pests."
                                 android:textColor="@color/text_gray"
                                 android:textSize="13sp" />
                         </LinearLayout>
