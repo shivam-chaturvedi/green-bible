@@ -1,16 +1,41 @@
 <resources>
+    <!-- Primary Garden Green Palette -->
     <color name="green_primary">#2E7D32</color>
     <color name="green_light">#E8F5E9</color>
     <color name="green_dark">#1B5E20</color>
-
-    <!-- These two were missing -->
+    <color name="green_vibrant">#4CAF50</color>
+    <color name="green_forest">#1B5E20</color>
+    <color name="green_emerald">#388E3C</color>
+    <color name="green_sage">#81C784</color>
+    <color name="green_mint">#C8E6C9</color>
+    
+    <!-- Nature Accent Colors -->
+    <color name="earth_brown">#6D4C41</color>
+    <color name="sunshine_yellow">#FBC02D</color>
+    <color name="sky_blue">#42A5F5</color>
+    <color name="soil_brown">#8D6E63</color>
+    <color name="leaf_green">#66BB6A</color>
+    <color name="water_blue">#26C6DA</color>
+    
+    <!-- Text Colors -->
     <color name="text_dark">#212121</color>
     <color name="text_gray">#757575</color>
+    <color name="text_light">#BDBDBD</color>
+    <color name="text_nature_dark">#1B4332</color>
 
+    <!-- Base Colors -->
     <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    
+    <!-- Calendar Colors -->
     <color name="calendar_day_stroke">#E0E0E0</color>
-    <color name="calendar_day_today_stroke">#A5D6A7</color>
+    <color name="calendar_day_today_stroke">#66BB6A</color>
     <color name="calendar_day_selected_bg">#E5F6EB</color>
     <color name="calendar_day_ripple">#332E7D32</color>
     <color name="calendar_day_today_text">#2E7D32</color>
+    
+    <!-- Card & Surface Colors -->
+    <color name="surface_light">#FAFAFA</color>
+    <color name="surface_nature">#F1F8E9</color>
+    <color name="card_shadow">#1A000000</color>
 </resources>

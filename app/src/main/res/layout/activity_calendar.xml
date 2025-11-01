@@ -178,8 +178,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="#CFEAD3"
+        android:background="@color/green_mint"
+        android:elevation="8dp"
         app:itemIconTint="@color/nav_item_color"
         app:itemTextColor="@color/nav_item_color"
+        app:itemRippleColor="@color/green_primary"
         app:menu="@menu/bottom_nav_menu" />
 </RelativeLayout>
