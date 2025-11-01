@@ -1,6 +1,7 @@
 package com.athena.greenbible;
 
 import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -22,18 +23,23 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import androidx.core.content.ContextCompat;
 
+import com.athena.greenbible.notifications.NotificationHelper;
+import com.athena.greenbible.notifications.TaskReminderScheduler;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 public class CalendarActivity extends AppCompatActivity {
 
@@ -55,12 +61,19 @@ public class CalendarActivity extends AppCompatActivity {
     private final DateTimeFormatter niceFmt = DateTimeFormatter.ofPattern("EEEE, MMMM d", Locale.US);
     private final DateTimeFormatter monthFmt = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.US);
     private final DateTimeFormatter metaDateFmt = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.US);
-    private final DateTimeFormatter metaTimeFmt = DateTimeFormatter.ofPattern("h:mm a", Locale.US);
+    public static final DateTimeFormatter TIME_FMT_DISPLAY = DateTimeFormatter.ofPattern("h:mm a", Locale.US);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendar);
+
+        NotificationHelper.requestPermissionIfNeeded(this);
+        NotificationHelper.ensureChannel(
+                this,
+                NotificationHelper.TASK_CHANNEL_ID,
+                NotificationHelper.TASK_CHANNEL_NAME,
+                NotificationHelper.TASK_CHANNEL_DESC);
 
         monthLabel = findViewById(R.id.monthLabel);
         tasksTitle = findViewById(R.id.tasksTitle);
@@ -94,6 +107,8 @@ public class CalendarActivity extends AppCompatActivity {
         tasksRecycler.setAdapter(adapter);
 
         fab.setOnClickListener(v -> showAddTaskDialog());
+
+        loadTasksFromStorage();
 
         renderCalendar(); // initial render
         updateTasksForSelected();
@@ -183,13 +198,41 @@ public class CalendarActivity extends AppCompatActivity {
             list = new ArrayList<>();
             tasksMap.put(key, list);
         }
-        Collections.sort(list, (a, b) -> b.lastUpdated.compareTo(a.lastUpdated));
+        Collections.sort(list, (a, b) -> a.getDueDateTime().compareTo(b.getDueDateTime()));
         ArrayList<Task> finalList = list;
         adapter.setItems(list, () -> {
             renderCalendar();
             tasksTitle.setText("Tasks for " + niceFmt.format(selectedDate));
-            Collections.sort(finalList, (a, b) -> b.lastUpdated.compareTo(a.lastUpdated));
+            Collections.sort(finalList, (a, b) -> a.getDueDateTime().compareTo(b.getDueDateTime()));
         });
+    }
+
+    private void loadTasksFromStorage() {
+        tasksMap.clear();
+        List<Task> stored = TaskRepository.loadTasks(this);
+        for (Task task : stored) {
+            String key = keyFmt.format(task.getDate());
+            ArrayList<Task> list = tasksMap.get(key);
+            if (list == null) {
+                list = new ArrayList<>();
+                tasksMap.put(key, list);
+            }
+            list.add(task);
+            sortTasks(list);
+        }
+    }
+
+    private void persistTasks() {
+        ArrayList<Task> all = new ArrayList<>();
+        for (ArrayList<Task> list : tasksMap.values()) {
+            sortTasks(list);
+            all.addAll(list);
+        }
+        TaskRepository.saveTasks(this, all);
+    }
+
+    private void sortTasks(ArrayList<Task> list) {
+        Collections.sort(list, (a, b) -> a.getDueDateTime().compareTo(b.getDueDateTime()));
     }
 
     private void showAddTaskDialog() {
@@ -210,6 +253,7 @@ public class CalendarActivity extends AppCompatActivity {
         TextView title = view.findViewById(R.id.dialogTitle);
         EditText etDate = view.findViewById(R.id.etDate);
         EditText etTask = view.findViewById(R.id.etTask);
+        EditText etTime = view.findViewById(R.id.etTime);
         Button btnConfirm = view.findViewById(R.id.btnConfirm);
 
         title.setText(isEdit ? getString(R.string.task_dialog_title_edit) : getString(R.string.task_dialog_title_add));
@@ -217,6 +261,7 @@ public class CalendarActivity extends AppCompatActivity {
 
         final int editPosition = position != null ? position : -1;
         final LocalDate[] chosen = new LocalDate[]{ originalDate };
+        final LocalTime[] chosenTime = new LocalTime[]{ LocalTime.now().withSecond(0).withNano(0) };
         final String originalKey = keyFmt.format(originalDate);
         ArrayList<Task> originalList = tasksMap.get(originalKey);
         if (originalList == null) {
@@ -230,11 +275,15 @@ public class CalendarActivity extends AppCompatActivity {
             etTask.setText(editingTask.text);
             etTask.setSelection(editingTask.text.length());
             chosen[0] = editingTask.date;
+            if (editingTask.time != null) {
+                chosenTime[0] = editingTask.time;
+            }
         } else {
             etTask.setText("");
         }
 
         etDate.setText(niceFmt.format(chosen[0]));
+        etTime.setText(TIME_FMT_DISPLAY.format(chosenTime[0]));
         etTask.setError(null);
 
         Task finalEditingTask = editingTask;
@@ -246,6 +295,15 @@ public class CalendarActivity extends AppCompatActivity {
                 etDate.setText(niceFmt.format(picked));
             }, d.getYear(), d.getMonthValue() - 1, d.getDayOfMonth());
             dp.show();
+        });
+
+        etTime.setOnClickListener(v -> {
+            LocalTime t = chosenTime[0];
+            TimePickerDialog tp = new TimePickerDialog(this, (view1, hourOfDay, minute) -> {
+                chosenTime[0] = LocalTime.of(hourOfDay, minute);
+                etTime.setText(TIME_FMT_DISPLAY.format(chosenTime[0]));
+            }, t.getHour(), t.getMinute(), false);
+            tp.show();
         });
 
         AlertDialog dlg = new AlertDialog.Builder(this)
@@ -264,6 +322,7 @@ public class CalendarActivity extends AppCompatActivity {
             }
 
             LocalDate targetDate = chosen[0];
+            LocalTime targetTime = chosenTime[0];
             String targetKey = keyFmt.format(targetDate);
             LocalDateTime now = LocalDateTime.now();
 
@@ -273,12 +332,14 @@ public class CalendarActivity extends AppCompatActivity {
                     sourceList = new ArrayList<>();
                     tasksMap.put(originalKey, sourceList);
                 }
-
+                TaskReminderScheduler.cancelTaskReminders(this, finalEditingTask1);
                 finalEditingTask1.text = text;
                 finalEditingTask1.lastUpdated = now;
 
                 if (targetKey.equals(originalKey)) {
                     finalEditingTask1.date = targetDate;
+                    finalEditingTask1.time = targetTime;
+                    sortTasks(sourceList);
                 } else {
                     sourceList.remove(finalEditingTask1);
                     ArrayList<Task> destList = tasksMap.get(targetKey);
@@ -287,8 +348,15 @@ public class CalendarActivity extends AppCompatActivity {
                         tasksMap.put(targetKey, destList);
                     }
                     finalEditingTask1.date = targetDate;
+                    finalEditingTask1.time = targetTime;
                     destList.add(finalEditingTask1);
+                    sortTasks(destList);
+                    sortTasks(sourceList);
+                    if (sourceList.isEmpty()) {
+                        tasksMap.remove(originalKey);
+                    }
                 }
+                TaskReminderScheduler.scheduleTaskReminders(this, finalEditingTask1);
                 selectedDate = targetDate;
             } else {
                 ArrayList<Task> destList = tasksMap.get(targetKey);
@@ -296,10 +364,14 @@ public class CalendarActivity extends AppCompatActivity {
                     destList = new ArrayList<>();
                     tasksMap.put(targetKey, destList);
                 }
-                destList.add(new Task(text, targetDate, now));
+                Task newTask = new Task(UUID.randomUUID().toString(), text, targetDate, targetTime, now);
+                destList.add(newTask);
+                sortTasks(destList);
+                TaskReminderScheduler.scheduleTaskReminders(this, newTask);
                 selectedDate = targetDate;
             }
 
+            persistTasks();
             updateTasksForSelected();
             renderCalendar();
             dlg.dismiss();
@@ -332,7 +404,8 @@ public class CalendarActivity extends AppCompatActivity {
         @Override public void onBindViewHolder(@NonNull TaskVH h, int pos) {
             Task task = items.get(pos);
             h.text.setText(task.text);
-            String meta = metaDateFmt.format(task.date) + " • " + metaTimeFmt.format(task.lastUpdated);
+            String timeText = task.time != null ? TIME_FMT_DISPLAY.format(task.time) : "--";
+            String meta = metaDateFmt.format(task.date) + " • " + timeText;
             h.meta.setText(meta);
             h.edit.setOnClickListener(v -> {
                 int position = h.getBindingAdapterPosition();
@@ -343,10 +416,16 @@ public class CalendarActivity extends AppCompatActivity {
                 int position = h.getBindingAdapterPosition();
                 if (position == RecyclerView.NO_POSITION) return;
                 if (position < items.size()) {
+                    Task removed = items.get(position);
+                    TaskReminderScheduler.cancelTaskReminders(CalendarActivity.this, removed);
                     items.remove(position);
                     notifyItemRemoved(position);
                     notifyItemRangeChanged(position, items.size() - position);
+                    if (items.isEmpty()) {
+                        tasksMap.remove(keyFmt.format(removed.getDate()));
+                    }
                     if (onChanged != null) onChanged.run();
+                    persistTasks();
                 }
             });
         }
@@ -368,15 +447,39 @@ public class CalendarActivity extends AppCompatActivity {
         }
     }
 
-    private static class Task {
+    public static class Task {
+        public final String id;
         String text;
         LocalDate date;
+        LocalTime time;
         LocalDateTime lastUpdated;
 
-        Task(String text, LocalDate date, LocalDateTime lastUpdated) {
+        Task(String id, String text, LocalDate date, LocalTime time, LocalDateTime lastUpdated) {
+            this.id = id;
             this.text = text;
             this.date = date;
+            this.time = time;
             this.lastUpdated = lastUpdated;
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public LocalDate getDate() {
+            return date;
+        }
+
+        public LocalTime getTime() {
+            return time;
+        }
+
+        LocalDateTime getDueDateTime() {
+            return LocalDateTime.of(date, time != null ? time : LocalTime.of(9, 0));
+        }
+
+        public int getReminderRequestCode(int offset) {
+            return (id.hashCode() * 31) + offset;
         }
     }
 }

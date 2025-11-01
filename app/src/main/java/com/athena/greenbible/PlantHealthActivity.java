@@ -2,21 +2,38 @@ package com.athena.greenbible;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.view.Window;
-import android.widget.*;
+import android.view.LayoutInflater;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Toast;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
+import com.athena.greenbible.network.LeafApi;
+import com.athena.greenbible.network.LeafApiClient;
+import com.athena.greenbible.network.model.PredictionResponse;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class PlantHealthActivity extends AppCompatActivity {
 
@@ -25,8 +42,11 @@ public class PlantHealthActivity extends AppCompatActivity {
     private static final int PERMISSION_CODE = 200;
 
     private ImageView previewImage;
-    private EditText symptomInput;
     private LinearLayout btnAnalyze;
+    private File selectedImageFile;
+    private androidx.appcompat.app.AlertDialog progressDialog;
+
+    private final LeafApi leafApi = LeafApiClient.getApi();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +54,6 @@ public class PlantHealthActivity extends AppCompatActivity {
         setContentView(R.layout.activity_plant_health);
 
         previewImage = findViewById(R.id.previewImage);
-        symptomInput = findViewById(R.id.symptomInput);
         btnAnalyze = findViewById(R.id.btnAnalyze);
 
         LinearLayout btnCamera = findViewById(R.id.btnCamera);
@@ -45,7 +64,7 @@ public class PlantHealthActivity extends AppCompatActivity {
 
         btnCamera.setOnClickListener(v -> openCamera());
         btnGallery.setOnClickListener(v -> openGallery());
-        btnAnalyze.setOnClickListener(v -> showDiagnosisDialog());
+        btnAnalyze.setOnClickListener(v -> startAnalysis());
     }
 
     private void openCamera() {
@@ -78,33 +97,109 @@ public class PlantHealthActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK && data != null) {
-            Bitmap bitmap = null;
             if (requestCode == REQ_CAMERA && data.getExtras() != null) {
-                bitmap = (Bitmap) data.getExtras().get("data");
+                Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+                if (bitmap != null) {
+                    selectedImageFile = createFileFromBitmap(bitmap, "camera_capture");
+                    previewImage.setImageBitmap(bitmap);
+                    previewImage.setVisibility(ImageView.VISIBLE);
+                }
             } else if (requestCode == REQ_GALLERY) {
                 Uri uri = data.getData();
-                try {
-                    bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if (uri != null) {
+                    try {
+                        selectedImageFile = copyUriToFile(uri);
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                        previewImage.setImageBitmap(bitmap);
+                        previewImage.setVisibility(ImageView.VISIBLE);
+                    } catch (IOException e) {
+                        Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show();
+                    }
                 }
-            }
-            if (bitmap != null) {
-                previewImage.setImageBitmap(bitmap);
-                previewImage.setVisibility(ImageView.VISIBLE);
             }
         }
     }
 
-    private void showDiagnosisDialog() {
-        Dialog dialog = new Dialog(this);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.dialog_diagnosis_result);
-        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        dialog.show();
+    private void startAnalysis() {
+        if (selectedImageFile == null || !selectedImageFile.exists()) {
+            Toast.makeText(this, "Please capture or select a leaf photo first.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        showLoading(true);
+        RequestBody requestFile = RequestBody.create(selectedImageFile, MediaType.parse("image/jpeg"));
+        MultipartBody.Part body = MultipartBody.Part.createFormData("file", selectedImageFile.getName(), requestFile);
 
-        ImageView closeBtn = dialog.findViewById(R.id.closeDialog);
-        closeBtn.setOnClickListener(v -> dialog.dismiss());
+        leafApi.uploadLeaf(body).enqueue(new Callback<PredictionResponse>() {
+            @Override
+            public void onResponse(Call<PredictionResponse> call, Response<PredictionResponse> response) {
+                showLoading(false);
+                if (response.isSuccessful() && response.body() != null) {
+                    navigateToResult(response.body());
+                } else {
+                    Toast.makeText(PlantHealthActivity.this, "Couldn't analyze image right now.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<PredictionResponse> call, Throwable t) {
+                showLoading(false);
+                Toast.makeText(PlantHealthActivity.this, "Analysis failed. Check your connection.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void navigateToResult(PredictionResponse prediction) {
+        Intent intent = new Intent(this, DiagnosisResultActivity.class);
+        intent.putExtra(DiagnosisResultActivity.EXTRA_IMAGE_PATH, selectedImageFile != null ? selectedImageFile.getAbsolutePath() : null);
+        intent.putExtra(DiagnosisResultActivity.EXTRA_LABEL, prediction.getPredictedLabel());
+        intent.putExtra(DiagnosisResultActivity.EXTRA_CONFIDENCE, prediction.getConfidence());
+        if (prediction.getAllConfidences() != null) {
+            intent.putExtra(DiagnosisResultActivity.EXTRA_BREAKDOWN, GsonHolder.get().toJson(prediction.getAllConfidences()));
+        }
+        startActivity(intent);
+    }
+
+    private void showLoading(boolean show) {
+        if (show) {
+            if (progressDialog == null) {
+                androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
+                builder.setView(LayoutInflater.from(this).inflate(R.layout.dialog_loading, null));
+                builder.setCancelable(false);
+                progressDialog = builder.create();
+            }
+            progressDialog.show();
+        } else if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+    }
+
+    private File createFileFromBitmap(Bitmap bitmap, String prefix) {
+        try {
+            File file = File.createTempFile(prefix, ".jpg", getCacheDir());
+            FileOutputStream out = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+            out.flush();
+            out.close();
+            return file;
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    private File copyUriToFile(Uri uri) throws IOException {
+        InputStream inputStream = getContentResolver().openInputStream(uri);
+        if (inputStream == null) return null;
+        File file = File.createTempFile("gallery_selection", ".jpg", getCacheDir());
+        FileOutputStream outputStream = new FileOutputStream(file);
+        byte[] buffer = new byte[4096];
+        int length;
+        while ((length = inputStream.read(buffer)) > 0) {
+            outputStream.write(buffer, 0, length);
+        }
+        outputStream.flush();
+        outputStream.close();
+        inputStream.close();
+        return file;
     }
 
     private void setupNav(BottomNavigationView nav) {

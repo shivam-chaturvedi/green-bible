@@ -99,6 +99,7 @@
                             android:orientation="horizontal">
 
                             <TextView
+                                android:id="@+id/tasks_today_text"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginEnd="8dp"
@@ -107,7 +108,7 @@
                                 android:paddingTop="8dp"
                                 android:paddingEnd="16dp"
                                 android:paddingBottom="8dp"
-                                android:text="3 tasks today"
+                                android:text="No tasks today"
                                 android:textColor="@color/green_primary"
                                 android:textSize="12sp"
                                 android:textStyle="bold" />
@@ -141,7 +142,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="10dp"
                             android:layout_weight="1"
-                            android:text="Run Plant Check"
+                            android:text="Plant Check"
                             android:textAllCaps="false"
                             android:textColor="@color/green_primary"
                             android:textSize="14sp"
@@ -210,6 +211,31 @@
                         android:text="Personalised watering reminders, pest alerts, and seasonal guides use this data."
                         android:textColor="@color/text_gray"
                         android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/weather_summary_home"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="Fetching weather…"
+                        android:textColor="@color/green_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_share_location"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="@string/share_location"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white"
+                        android:textSize="13sp"
+                        app:backgroundTint="@color/green_primary"
+                        app:cornerRadius="24dp"
+                        app:icon="@drawable/ic_globe"
+                        app:iconPadding="8dp"
+                        app:iconTint="@color/white" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -255,7 +281,7 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:minHeight="160dp"
+                            android:minHeight="120dp"
                             android:orientation="vertical"
                             android:padding="18dp">
 
@@ -303,7 +329,7 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:minHeight="160dp"
+                            android:minHeight="120dp"
                             android:orientation="vertical"
                             android:padding="18dp">
 
@@ -357,7 +383,7 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:minHeight="160dp"
+                            android:minHeight="120dp"
                             android:orientation="vertical"
                             android:padding="18dp">
 

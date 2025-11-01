@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.CAMERA" />
@@ -9,6 +10,8 @@
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"
+        tools:targetApi="33" />
 
     <application
         android:allowBackup="true"
@@ -22,8 +25,13 @@
         <activity android:name=".AboutActivity" android:exported="false" />
         <activity android:name=".CalendarActivity" android:exported="false" />
         <activity android:name=".SustainabilityActivity" android:exported="false" />
+        <activity android:name=".DiagnosisResultActivity" android:exported="false" />
         <activity android:name=".PlantHealthActivity" android:exported="false" />
         <activity android:name=".PlantAIActivity" android:exported="false" />
+
+        <receiver
+            android:name=".notifications.TaskReminderReceiver"
+            android:exported="false" />
 
         <activity
             android:name=".MainActivity"

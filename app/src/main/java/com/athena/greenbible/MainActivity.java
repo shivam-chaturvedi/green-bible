@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,13 +19,22 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.card.MaterialCardView;
 
+import com.athena.greenbible.weather.WeatherData;
+import com.athena.greenbible.weather.WeatherService;
+
+import java.time.LocalDate;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
 
     private FusedLocationProviderClient fusedLocationClient;
     private TextView locationText;
+    private TextView weatherSummaryText;
+    private TextView tasksTodayText;
     private BottomNavigationView bottomNavigationView;
     private MaterialButton heroHealthButton;
     private MaterialButton heroCalendarButton;
+    private MaterialButton shareLocationButton;
     private MaterialCardView quickActionAi;
     private MaterialCardView quickActionHealth;
     private MaterialCardView quickActionCalendar;
@@ -39,13 +49,18 @@ public class MainActivity extends AppCompatActivity {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         locationText = findViewById(R.id.location_text);
+        weatherSummaryText = findViewById(R.id.weather_summary_home);
+        tasksTodayText = findViewById(R.id.tasks_today_text);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
+        shareLocationButton = findViewById(R.id.btn_share_location);
 
         bottomNavigationView.setSelectedItemId(R.id.nav_home);
         setupNavigation();
         setupEntryPoints();
+        setupLocationButton();
 
         requestLocationPermission();
+        updateTasksSummary();
     }
 
     // 🌍 Ask for location permission
@@ -72,8 +87,26 @@ public class MainActivity extends AppCompatActivity {
             if (location != null) {
                 String loc = "Lat: " + location.getLatitude() + ", Lon: " + location.getLongitude();
                 locationText.setText(loc);
+                fetchWeather(location.getLatitude(), location.getLongitude());
             } else {
                 locationText.setText("Unable to get location");
+                updateWeatherSummary("Weather unavailable");
+            }
+        }).addOnFailureListener(e -> updateWeatherSummary("Weather unavailable"));
+    }
+
+    private void setupLocationButton() {
+        if (shareLocationButton == null) return;
+        shareLocationButton.setOnClickListener(v -> {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED) {
+                requestLocationPermission();
+            } else {
+                try {
+                    startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                } catch (Exception ignored) {
+                }
+                getLastLocation();
             }
         });
     }
@@ -175,6 +208,55 @@ public class MainActivity extends AppCompatActivity {
             getLastLocation();
         } else {
             Toast.makeText(this, "Location permission denied", Toast.LENGTH_SHORT).show();
+            locationText.setText("Location permission denied");
+            updateWeatherSummary("Weather unavailable");
         }
+    }
+
+    private void fetchWeather(double lat, double lon) {
+        WeatherService.fetchWeather(lat, lon, new WeatherService.Callback() {
+            @Override
+            public void onSuccess(WeatherData data) {
+                updateWeatherSummary(data.buildHeadline());
+            }
+
+            @Override
+            public void onError(String message) {
+                updateWeatherSummary(message != null ? message : "Weather unavailable");
+            }
+        });
+    }
+
+    private void updateWeatherSummary(String text) {
+        if (weatherSummaryText != null) {
+            weatherSummaryText.setText(text != null ? text : "Weather unavailable");
+        }
+    }
+
+    private void updateTasksSummary() {
+        List<CalendarActivity.Task> tasks = TaskRepository.loadTasks(this);
+        int count = 0;
+        LocalDate today = LocalDate.now();
+        for (CalendarActivity.Task task : tasks) {
+            if (today.equals(task.getDate())) {
+                count++;
+            }
+        }
+        if (tasksTodayText != null) {
+            if (count == 0) {
+                tasksTodayText.setText("No tasks today");
+            } else if (count == 1) {
+                tasksTodayText.setText("1 task today");
+            } else {
+                tasksTodayText.setText(count + " tasks today");
+            }
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        getLastLocation();
+        updateTasksSummary();
     }
 }
