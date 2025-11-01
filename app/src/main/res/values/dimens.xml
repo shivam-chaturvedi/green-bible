@@ -1,0 +1,3 @@
+<resources>
+    <dimen name="calendar_day_stroke_width">1dp</dimen>
+</resources>

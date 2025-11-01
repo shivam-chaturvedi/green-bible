@@ -1,84 +1,181 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:background="@color/green_light">
 
-    <LinearLayout android:orientation="vertical" android:layout_width="match_parent"
-        android:layout_height="match_parent" android:padding="16dp">
+    <!-- Title -->
+    <TextView
+        android:id="@+id/titleCalendar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Garden Calendar"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:textColor="@color/green_primary"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="6dp" />
 
-        <TextView
+    <ScrollView
+        android:id="@+id/scroll"
+        android:layout_below="@id/titleCalendar"
+        android:layout_above="@id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Garden Calendar"
-            android:textSize="26sp"
-            android:textStyle="bold"
-            android:textColor="@color/green_primary"/>
+            android:orientation="vertical">
 
-        <!-- simple Month/Days placeholder -->
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:background="@drawable/bg_card" android:layout_marginTop="12dp"
-            android:paddingBottom="20dp" android:orientation="vertical">
-            <TextView
-                android:layout_width="wrap_content"
+            <!-- Month header -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="October 2025"
+                android:background="@drawable/bg_card"
+                android:padding="12dp"
+                android:gravity="center_vertical"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:id="@+id/btnPrevMonth"
+                        style="?attr/borderlessButtonStyle"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:contentDescription="Previous"
+                        android:src="@drawable/ic_chevron_left"
+                        android:tint="@color/green_primary" />
+
+                    <TextView
+                        android:id="@+id/monthLabel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="November 2025"
+                        android:textColor="@color/green_primary"
+                        android:textStyle="bold"
+                        android:textSize="18sp" />
+
+                    <ImageButton
+                        android:id="@+id/btnNextMonth"
+                        style="?attr/borderlessButtonStyle"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:contentDescription="Next"
+                        android:src="@drawable/ic_chevron_right"
+                        android:tint="@color/green_primary" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/monthSubtitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="@string/calendar_subtitle"
+                    android:textColor="@color/text_gray"
+                    android:textSize="12sp" />
+
+                <!-- Weekday row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal"
+                    android:gravity="center">
+
+                    <!-- 7 labels -->
+                    <TextView
+                        style="@style/WeekdayLabel"
+                        android:text="@string/weekday_sunday" />
+                    <TextView
+                        style="@style/WeekdayLabel"
+                        android:text="@string/weekday_monday" />
+
+                    <TextView
+                        style="@style/WeekdayLabel"
+                        android:text="@string/weekday_tuesday" />
+
+                    <TextView
+                        style="@style/WeekdayLabel"
+                        android:text="@string/weekday_wednesday" />
+                    <TextView
+                        style="@style/WeekdayLabel"
+                        android:text="@string/weekday_thursday" />
+                    <TextView
+                        style="@style/WeekdayLabel"
+                        android:text="@string/weekday_friday" />
+                    <TextView
+                        style="@style/WeekdayLabel"
+                        android:text="@string/weekday_saturday" />
+                </LinearLayout>
+
+                <!-- Calendar grid (7 columns) -->
+                <GridLayout
+                    android:id="@+id/calendarGrid"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:columnCount="7"
+                    android:useDefaultMargins="false"
+                    android:alignmentMode="alignMargins" />
+            </LinearLayout>
+
+            <!-- Tasks section -->
+            <TextView
+                android:id="@+id/tasksTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Tasks for Sunday, November 30"
+                android:textColor="@color/green_primary"
                 android:textStyle="bold"
-                android:textColor="@color/text_dark"
-                android:layout_gravity="center"
-                android:layout_marginTop="6dp"/>
-            <TextView
-                android:layout_width="wrap_content"
+                android:textSize="18sp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/tasksRecycler"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="(Static demo calendar here)"
-                android:textColor="@color/text_gray"
-                android:layout_gravity="center"/>
+                android:layout_marginTop="8dp"
+                android:nestedScrollingEnabled="false" />
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="96dp" />
         </LinearLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Tasks for Friday, October 31"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/green_primary"
-            android:layout_marginTop="12dp"/>
-
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:background="@drawable/bg_card" android:layout_marginTop="8dp">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="•  Fertilize plants"
-                android:textColor="@color/green_primary"/>
-        </LinearLayout>
-
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:background="@drawable/bg_card" android:layout_marginTop="8dp">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="•  Clean greenhouse"
-                android:textColor="@color/green_primary"/>
-        </LinearLayout>
-
-        <Space android:layout_width="match_parent" android:layout_height="72dp"/>
-    </LinearLayout>
+    </ScrollView>
 
     <!-- FAB -->
-    <ImageButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAdd"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:src="@android:drawable/ic_input_add"
-        app:tint="@color/white"
-        android:background="@drawable/bg_button_green"
-        android:layout_alignParentBottom="true"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
         android:layout_alignParentEnd="true"
-        android:layout_margin="24dp"/>
+        android:layout_above="@id/bottom_navigation"
+        android:layout_margin="20dp"
+        android:src="@drawable/ic_add"
+        app:tint="@color/white"
+        app:backgroundTint="@color/green_primary"
+        android:contentDescription="Add Task" />
 
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true">
-        <include layout="@layout/bottom_nav"/>
-    </LinearLayout>
+    <!-- Bottom Navigation -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#CFEAD3"
+        app:itemIconTint="@color/nav_item_color"
+        app:itemTextColor="@color/nav_item_color"
+        app:menu="@menu/bottom_nav_menu" />
 </RelativeLayout>

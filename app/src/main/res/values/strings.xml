@@ -1,3 +1,20 @@
 <resources>
     <string name="app_name">Green Bible</string>
+    <string name="weekday_sunday">Sun</string>
+    <string name="weekday_monday">Mon</string>
+    <string name="weekday_tuesday">Tue</string>
+    <string name="weekday_wednesday">Wed</string>
+    <string name="weekday_thursday">Thu</string>
+    <string name="weekday_friday">Fri</string>
+    <string name="weekday_saturday">Sat</string>
+    <string name="calendar_subtitle">Tap a date to review your garden tasks.</string>
+    <string name="task_action_edit">Edit task</string>
+    <string name="task_action_delete">Delete task</string>
+    <string name="task_dialog_title_add">Add New Task</string>
+    <string name="task_dialog_title_edit">Edit Task</string>
+    <string name="task_dialog_add_button">Add Task</string>
+    <string name="task_dialog_save_button">Save Changes</string>
+    <string name="task_label_date">Date:</string>
+    <string name="task_label_description">Task Description:</string>
+    <string name="task_error_empty">Please enter a task.</string>
 </resources>
