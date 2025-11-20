@@ -1,0 +1,16 @@
+export const colors = {
+  greenLight: '#F3FFF5',
+  greenPrimary: '#2E7D32',
+  textDark: '#1B1B1B',
+  textGray: '#5F6A6A',
+  chipBackground: '#E5F2E7',
+  chipActive: '#C8E6C9',
+  divider: '#E0E0E0',
+  navBorder: '#D6D6D6',
+  orangeText: '#E68A00',
+  orangeBadge: '#FFF0DB',
+  botBubble: '#FFFFFF',
+  userBubble: '#DCEFE0',
+  inputBackground: '#FFFFFF',
+  aiBackground: '#E8F5E9',
+};

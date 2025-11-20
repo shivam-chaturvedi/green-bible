@@ -1,45 +1,73 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React, {useState} from 'react';
+import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
+import {Platform, StatusBar, StyleSheet, useColorScheme} from 'react-native';
+import Geolocation, {
+  GeolocationConfiguration,
+} from '@react-native-community/geolocation';
+import {SustainabilityScreen} from './src/screens/SustainabilityScreen';
+import {PlantAIScreen} from './src/screens/PlantAIScreen';
+import {HomeScreen} from './src/screens/HomeScreen';
+import {PlantHealthScreen} from './src/screens/PlantHealthScreen';
+import {CalendarScreen} from './src/screens/CalendarScreen';
+import {AboutScreen} from './src/screens/AboutScreen';
+import {colors} from './src/theme/colors';
+import {AppTab} from './src/types';
+import {AppErrorBoundary} from './src/components/AppErrorBoundary';
+import {registerGlobalErrorHandlers} from './src/utils/errorHandling';
 
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
-import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+const geolocationConfig: GeolocationConfiguration = {
+  skipPermissionRequests: false,
+  authorizationLevel: 'whenInUse',
+  locationProvider: Platform.select({
+    android: 'auto',
+    default: 'auto',
+  }) as GeolocationConfiguration['locationProvider'],
+};
 
-function App() {
+Geolocation.setRNConfiguration(geolocationConfig);
+registerGlobalErrorHandlers();
+
+function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
+  const [activeTab, setActiveTab] = useState<AppTab>('home');
 
   return (
-    <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <AppContent />
-    </SafeAreaProvider>
+    <AppErrorBoundary>
+      <SafeAreaProvider>
+        <StatusBar
+          barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+          backgroundColor={colors.greenLight}
+        />
+        <SafeAreaView style={styles.safeArea}>
+          {activeTab === 'home' && (
+            <HomeScreen activeTab={activeTab} onNavigate={setActiveTab} />
+          )}
+          {activeTab === 'health' && (
+            <PlantHealthScreen activeTab={activeTab} onNavigate={setActiveTab} />
+          )}
+          {activeTab === 'calendar' && (
+            <CalendarScreen activeTab={activeTab} onNavigate={setActiveTab} />
+          )}
+          {activeTab === 'sustain' && (
+            <SustainabilityScreen activeTab={activeTab} onNavigate={setActiveTab} />
+          )}
+          {activeTab === 'ai' && (
+            <PlantAIScreen activeTab={activeTab} onNavigate={setActiveTab} />
+          )}
+          {activeTab === 'about' && (
+            <AboutScreen activeTab={activeTab} onNavigate={setActiveTab} />
+          )}
+        </SafeAreaView>
+      </SafeAreaProvider>
+    </AppErrorBoundary>
   );
 }
-
-function AppContent() {
-  const safeAreaInsets = useSafeAreaInsets();
-
-  return (
-    <View style={styles.container}>
-      <NewAppScreen
-        templateFileName="App.tsx"
-        safeAreaInsets={safeAreaInsets}
-      />
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
 
 export default App;
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.greenLight,
+  },
+});
