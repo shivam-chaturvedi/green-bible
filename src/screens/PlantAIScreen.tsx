@@ -24,6 +24,12 @@ import {getRandomFallback} from '../utils/ai';
 import {sendGeminiPrompt} from '../services/geminiService';
 import {buildLocationSummary} from '../services/locationService';
 import {ensureLocationPermission} from '../services/permissionService';
+import {addTask} from '../services/taskService';
+import {
+  loadChatHistory,
+  persistChatHistory,
+  trimHistory,
+} from '../services/chatHistoryService';
 
 type Props = {
   activeTab: AppTab;
@@ -60,16 +66,32 @@ export function PlantAIScreen({activeTab, onNavigate}: Props) {
 
   const appendMessage = useCallback(
     (role: 'user' | 'bot', text: string) => {
-      setMessages(prev => [...prev, createMessage(role, text)]);
+      setMessages(prev => {
+        const next = trimHistory([...prev, createMessage(role, text)]);
+        persistChatHistory(next);
+        return next;
+      });
     },
     [],
   );
 
+  const hydrateHistory = useCallback(async () => {
+    const stored = await loadChatHistory();
+    if (stored.length) {
+      setMessages(trimHistory(stored));
+    }
+  }, []);
+
   const buildPromptWithContext = useCallback(
-    (userPrompt: string) => {
+    (userPrompt: string, chatHistory: ChatMessage[]) => {
       const locale = Intl.DateTimeFormat().resolvedOptions().locale;
       const dateLabel = formatLongDate(now);
       const timeLabel = formatShortTime(now);
+      const recent = chatHistory.slice(-5);
+      
+      const chatContext = recent.length
+        ? recent.map(msg => `- ${msg.role}: ${msg.text}`).join('\n')
+        : '- none yet';
       return (
         'You are a gardening assistant within the Green Bible mobile app. ' +
         'Use the context to tailor your response and keep it actionable.\n\n' +
@@ -78,10 +100,14 @@ export function PlantAIScreen({activeTab, onNavigate}: Props) {
         `- Local time: ${timeLabel}\n` +
         `- User location: ${locationSummary}\n` +
         `- User locale: ${locale}\n` +
+        `- Current date and time is : ${new Date()}`+
+        'Recent chat (last 5 messages, newest last):\n' +
+        `${chatContext}\n\n` +
         '- App mode: mobile chat assistant for gardeners.\n\n' +
         `User question: ${userPrompt}\n` +
         'Instructions: Provide a friendly, concise answer with practical steps. ' +
-        'If information is insufficient, state the limitation and suggest next actions.'
+        'If information is insufficient, state the limitation and suggest next actions. ' +
+        'Always respond on a single line using this exact schema: answer:<your concise answer> , STRIUCTLY RETUREN REOSNPONES ELIKE event:< {Title of event} ,{YYYY-MM-DD-HH:mm} in javascript format only > or event:<NA> when no scheduling is needed. Title should be short and actionable, and only include event when useful or explicitly requested.'
       );
     },
     [locationSummary, now],
@@ -92,11 +118,37 @@ export function PlantAIScreen({activeTab, onNavigate}: Props) {
       setLoading(true);
       setThinking(true);
       try {
-        const response = await sendGeminiPrompt(buildPromptWithContext(prompt));
+        const response = await sendGeminiPrompt(buildPromptWithContext(prompt, messages));
         const reply = response.trim().length
           ? response.trim()
           : getRandomFallback();
-        appendMessage('bot', reply);
+
+        const parsed = parseAiReply(reply);
+        appendMessage('bot', parsed.answerText);
+
+        if (parsed.eventDate) {
+          console.log('AI event parsed for scheduling', {
+            rawReply: reply,
+            eventTitle: parsed.eventTitle,
+            eventDate: parsed.eventDate.toISOString(),
+          });
+          try {
+            const saved = await addTask(parsed.eventTitle, parsed.eventDate);
+            console.log('AI event saved to calendar', saved);
+            appendMessage(
+              'bot',
+              `I scheduled "${saved.text}" for ${formatLongDate(parsed.eventDate)} at ${formatShortTime(parsed.eventDate)} in your calendar.`,
+            );
+          } catch (error) {
+            console.warn('Failed to save AI event to calendar', error);
+            appendMessage('bot', 'I tried to schedule that, but saving to your calendar failed.');
+          }
+        } else {
+          console.log('AI event parse found no schedulable event', {
+            rawReply: reply,
+            eventTitle: parsed.eventTitle,
+          });
+        }
       } catch {
         appendMessage('bot', getRandomFallback());
       } finally {
@@ -104,7 +156,7 @@ export function PlantAIScreen({activeTab, onNavigate}: Props) {
         setThinking(false);
       }
     },
-    [appendMessage, buildPromptWithContext],
+    [appendMessage, buildPromptWithContext, messages],
   );
 
   const handlePrompt = useCallback(
@@ -122,6 +174,10 @@ export function PlantAIScreen({activeTab, onNavigate}: Props) {
     },
     [appendMessage, loading, requestAiResponse],
   );
+
+  useEffect(() => {
+    hydrateHistory();
+  }, [hydrateHistory]);
 
   useEffect(() => {
     if (scrollViewRef.current) {
@@ -286,6 +342,89 @@ export function PlantAIScreen({activeTab, onNavigate}: Props) {
       </View>
     </KeyboardAvoidingView>
   );
+}
+
+function parseAiReply(raw: string): {
+  answerText: string;
+  eventDate: Date | null;
+  eventTitle: string;
+} {
+  const normalized = raw.replace(/\s+/g, ' ').trim();
+  const answerMatch = normalized.match(/answer\s*:\s*(.*?)(?:\s*event\s*:|$)/i);
+  const answerText = answerMatch?.[1]?.trim() || normalized || getRandomFallback();
+
+  const eventRaw = extractEventBlock(normalized);
+  const {eventDate, eventTitle} = parseEventDetails(eventRaw, answerText);
+
+  return {
+    answerText,
+    eventDate,
+    eventTitle,
+  };
+}
+
+function extractEventBlock(normalized: string): string | null {
+  const explicitCurly = normalized.match(/event\s*:\s*\{([^}]*)\}/i)?.[1];
+  if (explicitCurly) {
+    return explicitCurly.trim();
+  }
+
+  const explicitAngle = normalized.match(/event\s*:\s*<([^>]+)>/i)?.[1];
+  if (explicitAngle) {
+    return explicitAngle.trim();
+  }
+
+  const firstCurly = normalized.match(/\{([^}]*)\}/);
+  if (firstCurly?.[1]) {
+    return firstCurly[1].trim();
+  }
+
+  const firstBracket = normalized.match(/<([^>]+)>/);
+  return firstBracket?.[1]?.trim() ?? null;
+}
+
+function parseEventDetails(value: string | null, fallbackTitle: string): {
+  eventDate: Date | null;
+  eventTitle: string;
+} {
+  if (!value || /^NA$/i.test(value)) {
+    return {eventDate: null, eventTitle: fallbackTitle};
+  }
+
+  const cleaned = value.replace(/[<>{}]/g, '').trim();
+  const [titlePart, ...rest] = cleaned.split(',');
+  const title = (titlePart ?? '').trim();
+  const datePartRaw = rest.join(',').trim();
+
+  if (!datePartRaw) {
+    return {eventDate: null, eventTitle: fallbackTitle};
+  }
+
+  const dateTime = parseDateTime(datePartRaw);
+  if (!dateTime) {
+    return {eventDate: null, eventTitle: fallbackTitle};
+  }
+
+  return {
+    eventDate: dateTime,
+    eventTitle: title.length ? title : fallbackTitle,
+  };
+}
+
+function parseDateTime(value: string): Date | null {
+  const cleaned = value.replace(/local time/i, '').trim();
+  const match = cleaned.match(/(\d{4}-\d{2}-\d{2})[-T\s]+(\d{1,2}:\d{2})/);
+  if (!match) {
+    return null;
+  }
+
+  const datePart = match[1];
+  const [hourRaw, minuteRaw] = match[2].split(':');
+  const timePart = `${hourRaw.padStart(2, '0')}:${minuteRaw.padStart(2, '0')}`;
+
+  const isoString = `${datePart}T${timePart}`;
+  const parsed = new Date(isoString);
+  return isNaN(parsed.getTime()) ? null : parsed;
 }
 
 const styles = StyleSheet.create({

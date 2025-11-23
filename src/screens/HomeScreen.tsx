@@ -25,6 +25,8 @@ import {
   formatTemp,
 } from '../utils/formatters';
 
+let locationIntroShownOnce = false;
+
 const HERO_SUBTITLE =
   'Your garden snapshot is ready — watering, health, and schedule insights tailored for today.';
 const TIP_TITLE = 'Water pre-dawn for a stronger root system';
@@ -78,8 +80,10 @@ type Props = {
 };
 
 export function HomeScreen({activeTab, onNavigate}: Props) {
-  const [locationLabel, setLocationLabel] = useState('Locating you...');
-  const [weatherHeadline, setWeatherHeadline] = useState('Fetching weather…');
+  const [locationLabel, setLocationLabel] = useState('Location not shared yet');
+  const [weatherHeadline, setWeatherHeadline] = useState(
+    'Enable location to see live weather insights.',
+  );
   const [weatherTip, setWeatherTip] = useState(
     'Weather data unavailable. Enable location to see live insights.',
   );
@@ -88,6 +92,7 @@ export function HomeScreen({activeTab, onNavigate}: Props) {
   const [permissionDenied, setPermissionDenied] = useState(false);
   const [tasksLabel, setTasksLabel] = useState('No tasks today');
   const [refreshing, setRefreshing] = useState(false);
+  const [hasRequestedLocation, setHasRequestedLocation] = useState(false);
 
   const updateTasksSummary = useCallback(async () => {
     const tasks = await loadTasks();
@@ -139,12 +144,22 @@ export function HomeScreen({activeTab, onNavigate}: Props) {
   );
 
   const openLocationSettings = useCallback(() => {
+    if (Platform.OS === 'android' && typeof Linking.sendIntent === 'function') {
+      Linking.sendIntent('android.settings.LOCATION_SOURCE_SETTINGS').catch(() => {
+        Linking.openSettings().catch(() => {
+          Alert.alert('Location', 'Please enable location services in Settings.');
+        });
+      });
+      return;
+    }
+
     Linking.openSettings().catch(() => {
       Alert.alert('Location', 'Please enable location services in Settings.');
     });
   }, []);
 
   const requestPermissionAndLocate = useCallback(async () => {
+    setHasRequestedLocation(true);
     setWeatherLoading(true);
     const allowed = await ensureLocationPermission({
       title: 'Location permission',
@@ -197,8 +212,14 @@ export function HomeScreen({activeTab, onNavigate}: Props) {
   }, [fetchWeatherForCoords, openLocationSettings]);
 
   useEffect(() => {
-    requestPermissionAndLocate();
-  }, [requestPermissionAndLocate]);
+    if (!locationIntroShownOnce) {
+      Alert.alert(
+        'Enable location services',
+        'Please turn on location services to unlock live weather-based tips. Tap "Share location" when you are ready.',
+      );
+      locationIntroShownOnce = true;
+    }
+  }, []);
 
   useEffect(() => {
     updateTasksSummary();
@@ -206,10 +227,12 @@ export function HomeScreen({activeTab, onNavigate}: Props) {
 
   const handleRefresh = useCallback(() => {
     setRefreshing(true);
-    Promise.all([requestPermissionAndLocate(), updateTasksSummary()]).finally(() =>
-      setRefreshing(false),
-    );
-  }, [requestPermissionAndLocate, updateTasksSummary]);
+    const tasksPromise = updateTasksSummary();
+    const locationPromise = hasRequestedLocation
+      ? requestPermissionAndLocate()
+      : Promise.resolve();
+    Promise.all([tasksPromise, locationPromise]).finally(() => setRefreshing(false));
+  }, [hasRequestedLocation, requestPermissionAndLocate, updateTasksSummary]);
 
   const detailsText = weather
     ? `🌧️ Precip: ${formatPrecip(weather.precipitation)}   💧 Humidity: ${formatPercent(weather.humidity)}`

@@ -16,7 +16,11 @@ import DateTimePicker, {
 import {BottomNavigation} from '../components/BottomNavigation';
 import {colors} from '../theme/colors';
 import {AppTab, Task} from '../types';
-import {loadTasks, saveTasks} from '../services/taskService';
+import {
+  addTasksListener,
+  loadTasks,
+  saveTasks,
+} from '../services/taskService';
 import {NotificationBanner} from '../components/NotificationBanner';
 
 type Props = {
@@ -59,6 +63,10 @@ export function CalendarScreen({activeTab, onNavigate}: Props) {
 
   useEffect(() => {
     refreshTasks();
+    const unsubscribe = addTasksListener(() => {
+      refreshTasks();
+    });
+    return unsubscribe;
   }, [refreshTasks]);
 
   const dateKey = useCallback((date: Date) => formatDateKey(date), []);

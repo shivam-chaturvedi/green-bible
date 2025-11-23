@@ -1,4 +1,4 @@
-import {Alert, Platform} from 'react-native';
+import {Alert, Linking, Platform} from 'react-native';
 import {
   PERMISSIONS,
   Permission,
@@ -64,7 +64,36 @@ export async function ensureLocationPermission(
     android: PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION,
     default: undefined,
   });
-  return requestPermission(permission, message);
+
+  if (!permission) {
+    return true;
+  }
+
+  try {
+    const result = await request(permission);
+    if (result === RESULTS.GRANTED || result === RESULTS.LIMITED) {
+      return true;
+    }
+    if (result === RESULTS.BLOCKED) {
+      const openLocationPanel = () => {
+        if (Platform.OS === 'android' && typeof Linking.sendIntent === 'function') {
+          Linking.sendIntent('android.settings.LOCATION_SOURCE_SETTINGS').catch(() =>
+            openSettings(),
+          );
+        } else {
+          openSettings();
+        }
+      };
+
+      Alert.alert(message.title, message.message, [
+        {text: 'Cancel', style: 'cancel'},
+        {text: 'Open location settings', onPress: openLocationPanel},
+      ]);
+    }
+  } catch (error) {
+    console.warn('Permission request failed', error);
+  }
+  return false;
 }
 
 export async function ensureCameraPermission(
