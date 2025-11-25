@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
-import {Platform, StatusBar, StyleSheet, useColorScheme} from 'react-native';
+import {Platform, StatusBar, StyleSheet, Text, useColorScheme} from 'react-native';
 import Geolocation, {
   GeolocationConfiguration,
 } from '@react-native-community/geolocation';
@@ -31,6 +31,41 @@ function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
   const [activeTab, setActiveTab] = useState<AppTab>('home');
 
+  const renderScreen = () => {
+    try {
+      if (activeTab === 'home') {
+        return <HomeScreen activeTab={activeTab} onNavigate={setActiveTab} />;
+      }
+      if (activeTab === 'health') {
+        return <PlantHealthScreen activeTab={activeTab} onNavigate={setActiveTab} />;
+      }
+      if (activeTab === 'calendar') {
+        return <CalendarScreen activeTab={activeTab} onNavigate={setActiveTab} />;
+      }
+      if (activeTab === 'sustain') {
+        return <SustainabilityScreen activeTab={activeTab} onNavigate={setActiveTab} />;
+      }
+      if (activeTab === 'ai') {
+        return <PlantAIScreen activeTab={activeTab} onNavigate={setActiveTab} />;
+      }
+      if (activeTab === 'about') {
+        return <AboutScreen activeTab={activeTab} onNavigate={setActiveTab} />;
+      }
+    } catch (error) {
+      console.error('Screen render error', error);
+      return (
+        <SafeAreaView style={styles.safeArea}>
+          <Text>Something went wrong. Please restart the app.</Text>
+        </SafeAreaView>
+      );
+    }
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <Text>Unknown tab.</Text>
+      </SafeAreaView>
+    );
+  };
+
   return (
     <AppErrorBoundary>
       <SafeAreaProvider>
@@ -38,26 +73,7 @@ function App(): React.JSX.Element {
           barStyle={isDarkMode ? 'light-content' : 'dark-content'}
           backgroundColor={colors.greenLight}
         />
-        <SafeAreaView style={styles.safeArea}>
-          {activeTab === 'home' && (
-            <HomeScreen activeTab={activeTab} onNavigate={setActiveTab} />
-          )}
-          {activeTab === 'health' && (
-            <PlantHealthScreen activeTab={activeTab} onNavigate={setActiveTab} />
-          )}
-          {activeTab === 'calendar' && (
-            <CalendarScreen activeTab={activeTab} onNavigate={setActiveTab} />
-          )}
-          {activeTab === 'sustain' && (
-            <SustainabilityScreen activeTab={activeTab} onNavigate={setActiveTab} />
-          )}
-          {activeTab === 'ai' && (
-            <PlantAIScreen activeTab={activeTab} onNavigate={setActiveTab} />
-          )}
-          {activeTab === 'about' && (
-            <AboutScreen activeTab={activeTab} onNavigate={setActiveTab} />
-          )}
-        </SafeAreaView>
+        <SafeAreaView style={styles.safeArea}>{renderScreen()}</SafeAreaView>
       </SafeAreaProvider>
     </AppErrorBoundary>
   );

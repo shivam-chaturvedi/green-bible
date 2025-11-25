@@ -58,10 +58,6 @@ export function AboutScreen({activeTab, onNavigate}: Props) {
     Linking.openURL('mailto:agasthya.shukla@gmail.com').catch(() => {});
   };
 
-  const openWebsite = () => {
-    Linking.openURL('https://greenbible.example.com').catch(() => {});
-  };
-
   return (
     <View style={styles.screen}>
       <ScrollView
@@ -108,14 +104,9 @@ export function AboutScreen({activeTab, onNavigate}: Props) {
             <Text style={styles.contactIcon}>💬</Text>
             <Text style={styles.contactTitle}>Get in Touch</Text>
           </View>
-          <View style={styles.contactRow}>
-            <TouchableOpacity style={styles.contactButton} onPress={openMail}>
-              <Text style={styles.contactButtonText}>✉️  Email Support</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.contactButton} onPress={openWebsite}>
-              <Text style={styles.contactButtonText}>🌐  Visit Website</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity style={styles.contactButtonFull} onPress={openMail}>
+            <Text style={styles.contactButtonText}>✉️  Email Support</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.footer}>
@@ -305,16 +296,19 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: colors.greenPrimary,
   },
-  contactRow: {
-    flexDirection: 'row',
-    gap: 12,
-  },
   contactButton: {
     flex: 1,
     backgroundColor: colors.greenPrimary,
     borderRadius: 16,
     paddingVertical: 14,
     alignItems: 'center',
+  },
+  contactButtonFull: {
+    backgroundColor: colors.greenPrimary,
+    borderRadius: 16,
+    paddingVertical: 14,
+    alignItems: 'center',
+    width: '100%',
   },
   contactButtonText: {
     color: '#fff',

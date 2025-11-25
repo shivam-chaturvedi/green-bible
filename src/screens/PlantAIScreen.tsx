@@ -27,7 +27,9 @@ import {ensureLocationPermission} from '../services/permissionService';
 import {addTask} from '../services/taskService';
 import {
   loadChatHistory,
+  loadHistoryLimit,
   persistChatHistory,
+  saveHistoryLimit,
   trimHistory,
 } from '../services/chatHistoryService';
 
@@ -53,6 +55,7 @@ export function PlantAIScreen({activeTab, onNavigate}: Props) {
   const [locationSummary, setLocationSummary] = useState('Unknown location');
   const [permissionDenied, setPermissionDenied] = useState(false);
   const [now, setNow] = useState(new Date());
+  const [historyLimit, setHistoryLimit] = useState<number>(5);
   const scrollViewRef = useRef<ScrollView | null>(null);
 
   const updateClock = useCallback(() => {
@@ -67,18 +70,20 @@ export function PlantAIScreen({activeTab, onNavigate}: Props) {
   const appendMessage = useCallback(
     (role: 'user' | 'bot', text: string) => {
       setMessages(prev => {
-        const next = trimHistory([...prev, createMessage(role, text)]);
-        persistChatHistory(next);
+        const next = trimHistory([...prev, createMessage(role, text)], historyLimit);
+        persistChatHistory(next, historyLimit);
         return next;
       });
     },
-    [],
+    [historyLimit],
   );
 
   const hydrateHistory = useCallback(async () => {
-    const stored = await loadChatHistory();
+    const limit = await loadHistoryLimit();
+    setHistoryLimit(limit);
+    const stored = await loadChatHistory(limit);
     if (stored.length) {
-      setMessages(trimHistory(stored));
+      setMessages(trimHistory(stored, limit));
     }
   }, []);
 
@@ -107,7 +112,7 @@ export function PlantAIScreen({activeTab, onNavigate}: Props) {
         `User question: ${userPrompt}\n` +
         'Instructions: Provide a friendly, concise answer with practical steps. ' +
         'If information is insufficient, state the limitation and suggest next actions. ' +
-        'Always respond on a single line using this exact schema: answer:<your concise answer> , STRIUCTLY RETUREN REOSNPONES ELIKE event:< {Title of event} ,{YYYY-MM-DD-HH:mm} in javascript format only > or event:<NA> when no scheduling is needed. Title should be short and actionable, and only include event when useful or explicitly requested.'
+        'Always respond on a single line using this exact schema: answer:<your concise answer> , STRIUCTLY RETUREN REOSNPONES ELIKE event:< {Title of event + description without the tetx "Title of event" or "description" } ,{YYYY-MM-DD-HH:mm} in javascript format only > or event:<NA> when no scheduling is needed. Title should be short and actionable, and only include event when useful or explicitly requested. if TASK NAME IS NOT MENTIONSED THEN CHOOSE BY UR SELF BASED ON ALL PROMRPT AND CONETENT OF PREVIOUS CHATS U ARE GIVEN '
       );
     },
     [locationSummary, now],
@@ -233,6 +238,22 @@ export function PlantAIScreen({activeTab, onNavigate}: Props) {
 
   const canSend = inputValue.trim().length > 0 && !loading;
 
+  const historyOptions = [
+    {label: 'Last 5', value: 5},
+    {label: 'Last 10', value: 10},
+    {label: 'All time', value: 0},
+  ];
+
+  const handleHistoryLimitChange = useCallback(
+    async (value: number) => {
+      setHistoryLimit(value === 0 ? 0 : value);
+      await saveHistoryLimit(value);
+      const refreshed = await loadChatHistory(value);
+      setMessages(trimHistory(refreshed, value));
+    },
+    [],
+  );
+
   return (
     <KeyboardAvoidingView
       style={styles.aiScreen}
@@ -275,6 +296,32 @@ export function PlantAIScreen({activeTab, onNavigate}: Props) {
           style={styles.chatScroll}
           contentContainerStyle={styles.chatContent}
           keyboardShouldPersistTaps="handled">
+          <View style={styles.historyContainer}>
+            <Text style={styles.historyTitle}>Chat saving preference</Text>
+            <Text style={styles.historySubtitle}>
+              Default: last 5. Choose how many past messages to keep.
+            </Text>
+            <View style={styles.historyChips}>
+              {historyOptions.map(option => (
+                <TouchableOpacity
+                  key={option.label}
+                  style={[
+                    styles.historyChip,
+                    historyLimit === option.value && styles.historyChipActive,
+                  ]}
+                  onPress={() => handleHistoryLimitChange(option.value)}>
+                  <Text
+                    style={[
+                      styles.historyChipText,
+                      historyLimit === option.value && styles.historyChipTextActive,
+                    ]}>
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
           {messages.map(message =>
             message.role === 'user' ? (
               <View key={message.id} style={styles.userRow}>
@@ -515,6 +562,40 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     marginVertical: 6,
+  },
+  historyContainer: {
+    marginBottom: 8,
+  },
+  historyTitle: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.greenPrimary,
+  },
+  historySubtitle: {
+    fontSize: 12,
+    color: colors.textGray,
+    marginTop: 2,
+  },
+  historyChips: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 6,
+  },
+  historyChip: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 12,
+    backgroundColor: colors.inputBackground,
+  },
+  historyChipActive: {
+    backgroundColor: colors.greenPrimary,
+  },
+  historyChipText: {
+    fontSize: 12,
+    color: colors.textDark,
+  },
+  historyChipTextActive: {
+    color: '#FFFFFF',
   },
   botAvatar: {
     width: 36,

@@ -2,6 +2,7 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {
   ActivityIndicator,
   Alert,
+  AppState,
   Linking,
   Platform,
   RefreshControl,
@@ -93,6 +94,7 @@ export function HomeScreen({activeTab, onNavigate}: Props) {
   const [tasksLabel, setTasksLabel] = useState('No tasks today');
   const [refreshing, setRefreshing] = useState(false);
   const [hasRequestedLocation, setHasRequestedLocation] = useState(false);
+  const [appActive, setAppActive] = useState(true);
 
   const updateTasksSummary = useCallback(async () => {
     const tasks = await loadTasks();
@@ -212,14 +214,24 @@ export function HomeScreen({activeTab, onNavigate}: Props) {
   }, [fetchWeatherForCoords, openLocationSettings]);
 
   useEffect(() => {
-    if (!locationIntroShownOnce) {
+    const subscription = AppState.addEventListener('change', state => {
+      setAppActive(state === 'active');
+    });
+    setAppActive(AppState.currentState === 'active');
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!locationIntroShownOnce && appActive) {
       Alert.alert(
         'Enable location services',
         'Please turn on location services to unlock live weather-based tips. Tap "Share location" when you are ready.',
       );
       locationIntroShownOnce = true;
     }
-  }, []);
+  }, [appActive]);
 
   useEffect(() => {
     updateTasksSummary();
